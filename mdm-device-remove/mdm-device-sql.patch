@@ -1,0 +1,325 @@
+diff --git a/server/scripts/delete-device/delete_devices_safe.sql b/server/scripts/delete-device/delete_devices_safe.sql
+new file mode 100644
+index 000000000..ed4f328bc
+--- /dev/null
++++ b/server/scripts/delete-device/delete_devices_safe.sql
+@@ -0,0 +1,159 @@
++-- Safe device purge script for GERTEC_MDM_DEV (MySQL 5.7)
++-- Edit the identifier list below, run once with CALL ... (0) to preview,
++-- then change the call to CALL ... (1) to execute the delete.
++
++DROP PROCEDURE IF EXISTS purge_devices_by_identifier;
++DELIMITER //
++
++CREATE PROCEDURE purge_devices_by_identifier(IN p_apply_delete TINYINT(1))
++BEGIN
++  DROP TEMPORARY TABLE IF EXISTS tmp_device_identifiers;
++  CREATE TEMPORARY TABLE tmp_device_identifiers (
++    identifier VARCHAR(45) NOT NULL PRIMARY KEY
++  ) ENGINE=MEMORY;
++
++  -- Add one or more identifiers here.
++  INSERT INTO tmp_device_identifiers (identifier) VALUES
++    ('D8C222DFD8D6016F');
++
++  DROP TEMPORARY TABLE IF EXISTS tmp_device_targets;
++  CREATE TEMPORARY TABLE tmp_device_targets (
++    id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
++    identifier VARCHAR(45) NOT NULL,
++    name VARCHAR(200) NULL
++  ) ENGINE=MEMORY;
++
++  INSERT INTO tmp_device_targets (id, identifier, name)
++  SELECT d.id, d.identifier, d.name
++  FROM device d
++  JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY d.identifier;
++
++  SELECT 'target_devices' AS section, id, identifier, name
++  FROM tmp_device_targets
++  ORDER BY identifier;
++
++  SELECT 'preview_targets_loaded' AS section, COUNT(*) AS target_count
++  FROM tmp_device_targets;
++
++  IF p_apply_delete = 0 THEN
++    SELECT 'Preview only. Change the call to purge_devices_by_identifier(1) to execute the delete.' AS message;
++  ELSE
++    START TRANSACTION;
++
++    DELETE dd
++    FROM deviceDetails dd
++    JOIN tmp_device_targets t ON t.id = dd.device_id;
++
++    DELETE s
++    FROM state s
++    JOIN tmp_device_targets t ON t.id = s.device_id;
++
++    DELETE s
++    FROM state s
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY s.aws_device_id;
++
++    DELETE a
++    FROM alert a
++    JOIN tmp_device_targets t ON t.id = a.id_device;
++
++    DELETE dh
++    FROM deviceHistory dh
++    JOIN tmp_device_targets t ON t.id = dh.id_device;
++
++    DELETE dc
++    FROM device_certificate dc
++    JOIN tmp_device_targets t ON t.id = dc.id_device;
++
++    DELETE dhc
++    FROM device_history_communication dhc
++    JOIN tmp_device_targets t ON t.id = dhc.id_device;
++
++    DELETE dhc
++    FROM device_history_communication dhc
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY dhc.identifier;
++
++    DELETE dk
++    FROM device_key dk
++    JOIN tmp_device_targets t ON t.id = dk.id_device;
++
++    DELETE dla
++    FROM device_log_analysis dla
++    JOIN tmp_device_targets t ON t.id = dla.id_device;
++
++    DELETE drch
++    FROM device_roll_consumption_history drch
++    JOIN tmp_device_targets t ON t.id = drch.device_id;
++
++    DELETE dwc
++    FROM device_weekly_communication dwc
++    JOIN tmp_device_targets t ON t.id = dwc.id_device;
++
++    DELETE dwc
++    FROM device_weekly_communication dwc
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY dwc.identifier;
++
++    DELETE eh
++    FROM effectivenessHistory eh
++    JOIN tmp_device_targets t ON t.id = eh.idDevice;
++
++    DELETE mv
++    FROM mv_device_data_consumption_daily mv
++    JOIN tmp_device_targets t ON t.id = mv.id_device;
++
++    DELETE mv
++    FROM mv_device_data_consumption_daily mv
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY mv.identifier;
++
++    DELETE n
++    FROM notifications n
++    JOIN tmp_device_targets t ON t.id = n.id_device;
++
++    DELETE da
++    FROM device_app da
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY da.identifier;
++
++    DELETE dhd
++    FROM deviceHistoryDiff dhd
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY dhd.identifier;
++
++    DELETE it
++    FROM identifier_token it
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY it.identifier;
++
++    DELETE iar
++    FROM installed_apps_request iar
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY iar.identifier;
++
++    DELETE dt
++    FROM device_teste dt
++    JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY dt.identifier;
++
++    DELETE d
++    FROM device d
++    JOIN tmp_device_targets t ON t.id = d.id;
++
++    COMMIT;
++
++    SELECT 'Delete completed.' AS message;
++  END IF;
++END//
++
++DELIMITER ;
++
++CALL purge_devices_by_identifier(0);
++
++-- After reviewing the preview results, change the call above to:
++-- CALL purge_devices_by_identifier(1);
++
++DROP PROCEDURE purge_devices_by_identifier;
++
++-- QUICK USAGE (DOCKER)
++-- 1) Configure identifiers in INSERT INTO tmp_device_identifiers (one or many):
++--      ('ID_1'),
++--      ('ID_2');
++-- 2) Test mode (preview, no delete): keep CALL purge_devices_by_identifier(0);
++-- 3) Definitive mode (delete): change to CALL purge_devices_by_identifier(1);
++-- 4) Run from PowerShell:
++--      Get-Content -Raw ".\delete_devices_safe.sql" |
++--      docker exec -i mysqlgertec mysql -uroot -pgertec -D GERTEC_MDM_DEV
++-- 5) After delete, run verify_deleted_devices.sql to confirm status.
+\ No newline at end of file
+diff --git a/server/scripts/delete-device/verify_deleted_devices.sql b/server/scripts/delete-device/verify_deleted_devices.sql
+new file mode 100644
+index 000000000..a026bd7e6
+--- /dev/null
++++ b/server/scripts/delete-device/verify_deleted_devices.sql
+@@ -0,0 +1,152 @@
++-- Verification script for GERTEC_MDM_DEV (MySQL 5.7)
++-- Edit the identifier list below and run after the delete.
++
++DROP TEMPORARY TABLE IF EXISTS tmp_device_identifiers;
++CREATE TEMPORARY TABLE tmp_device_identifiers (
++  identifier VARCHAR(45) NOT NULL PRIMARY KEY
++) ENGINE=MEMORY;
++
++-- Add one or more identifiers here.
++INSERT INTO tmp_device_identifiers (identifier) VALUES
++  ('D8C222DFD8D6016F');
++
++DROP TEMPORARY TABLE IF EXISTS tmp_device_targets;
++CREATE TEMPORARY TABLE tmp_device_targets (
++  id BIGINT UNSIGNED NOT NULL PRIMARY KEY,
++  identifier VARCHAR(45) NOT NULL,
++  name VARCHAR(200) NULL
++) ENGINE=MEMORY;
++
++INSERT INTO tmp_device_targets (id, identifier, name)
++SELECT d.id, d.identifier, d.name
++FROM device d
++JOIN tmp_device_identifiers t ON BINARY t.identifier = BINARY d.identifier;
++
++SELECT 'device' AS table_name, t.identifier, COUNT(d.id) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN device d ON BINARY d.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'deviceDetails' AS table_name, t.identifier, COUNT(dd.device_id) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN deviceDetails dd ON dd.device_id = t.id
++GROUP BY t.identifier;
++
++SELECT 'state.device_id' AS table_name, t.identifier, COUNT(s.device_id) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN state s ON s.device_id = t.id
++GROUP BY t.identifier;
++
++SELECT 'state.aws_device_id' AS table_name, t.identifier, COUNT(s.aws_device_id) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN state s ON BINARY s.aws_device_id = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'alert' AS table_name, t.identifier, COUNT(a.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN alert a ON a.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'deviceHistory' AS table_name, t.identifier, COUNT(dh.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN deviceHistory dh ON dh.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_certificate' AS table_name, t.identifier, COUNT(dc.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN device_certificate dc ON dc.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_history_communication.id_device' AS table_name, t.identifier, COUNT(dhc.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN device_history_communication dhc ON dhc.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_history_communication.identifier' AS table_name, t.identifier, COUNT(dhc.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN device_history_communication dhc ON BINARY dhc.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'device_key' AS table_name, t.identifier, COUNT(dk.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN device_key dk ON dk.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_log_analysis' AS table_name, t.identifier, COUNT(dla.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN device_log_analysis dla ON dla.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_roll_consumption_history' AS table_name, t.identifier, COUNT(drch.device_id) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN device_roll_consumption_history drch ON drch.device_id = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_weekly_communication.id_device' AS table_name, t.identifier, COUNT(dwc.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN device_weekly_communication dwc ON dwc.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_weekly_communication.identifier' AS table_name, t.identifier, COUNT(dwc.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN device_weekly_communication dwc ON BINARY dwc.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'effectivenessHistory' AS table_name, t.identifier, COUNT(eh.idDevice) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN effectivenessHistory eh ON eh.idDevice = t.id
++GROUP BY t.identifier;
++
++SELECT 'mv_device_data_consumption_daily.id_device' AS table_name, t.identifier, COUNT(mv.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN mv_device_data_consumption_daily mv ON mv.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'mv_device_data_consumption_daily.identifier' AS table_name, t.identifier, COUNT(mv.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN mv_device_data_consumption_daily mv ON BINARY mv.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'notifications' AS table_name, t.identifier, COUNT(n.id_device) AS remaining_rows
++FROM tmp_device_targets t
++LEFT JOIN notifications n ON n.id_device = t.id
++GROUP BY t.identifier;
++
++SELECT 'device_app' AS table_name, t.identifier, COUNT(da.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN device_app da ON BINARY da.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'deviceHistoryDiff' AS table_name, t.identifier, COUNT(dhd.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN deviceHistoryDiff dhd ON BINARY dhd.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'identifier_token' AS table_name, t.identifier, COUNT(it.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN identifier_token it ON BINARY it.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'installed_apps_request' AS table_name, t.identifier, COUNT(iar.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN installed_apps_request iar ON BINARY iar.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT 'device_teste' AS table_name, t.identifier, COUNT(dt.identifier) AS remaining_rows
++FROM tmp_device_identifiers t
++LEFT JOIN device_teste dt ON BINARY dt.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++SELECT t.identifier, IF(COUNT(d.id) = 0, 'REMOVED', 'STILL_PRESENT') AS device_status
++FROM tmp_device_identifiers t
++LEFT JOIN device d ON BINARY d.identifier = BINARY t.identifier
++GROUP BY t.identifier;
++
++-- QUICK USAGE (DOCKER)
++-- 1) Configure identifiers in INSERT INTO tmp_device_identifiers (same list used in delete script).
++-- 2) Run from PowerShell:
++--      Get-Content -Raw ".\verify_deleted_devices.sql" |
++--      docker exec -i mysqlgertec mysql -uroot -pgertec -D GERTEC_MDM_DEV
++-- 3) Interpret final result:
++--      REMOVED = deleted successfully
++--      STILL_PRESENT = still exists (review delete script run in mode 1)
+\ No newline at end of file

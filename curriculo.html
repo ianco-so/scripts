@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Currículo - Ianco Soares Oliveira</title>
+        <style>
+            :root {
+                --primary-color: #2c3e50;
+                --secondary-color: #34495e;
+                --text-color: #333;
+                --light-gray: #7f8c8d;
+                --border-color: #ecf0f1;
+            }
+            body {
+                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                line-height: 1.6;
+                color: var(--text-color);
+                max-width: 850px;
+                margin: 0 auto;
+                padding: 40px 20px;
+                background-color: #fff;
+            }
+            header {
+                margin-bottom: 30px;
+                border-bottom: 2px solid var(--primary-color);
+                padding-bottom: 15px;
+            }
+            h1 {
+                color: var(--primary-color);
+                margin: 0 0 10px 0;
+                font-size: 2.2em;
+                text-transform: uppercase;
+                letter-spacing: 1px;
+            }
+            h2 {
+                color: var(--primary-color);
+                border-bottom: 1px solid var(--border-color);
+                padding-bottom: 5px;
+                margin-top: 30px;
+                margin-bottom: 20px;
+                font-size: 1.4em;
+                text-transform: uppercase;
+            }
+            .personal-data-grid {
+                display: grid;
+                grid-template-columns: 120px 1fr;
+                gap: 8px;
+                font-size: 0.95em;
+            }
+            .personal-data-label {
+                font-weight: 600;
+                color: var(--secondary-color);
+            }
+            .grid-container {
+                display: grid;
+                grid-template-columns: 140px 1fr;
+                gap: 20px;
+                margin-bottom: 20px;
+            }
+            .grid-left {
+                font-weight: 600;
+                color: var(--light-gray);
+                font-size: 0.95em;
+            }
+            .grid-right h3 {
+                margin: 0 0 5px 0;
+                font-size: 1.1em;
+                color: var(--secondary-color);
+            }
+            .grid-right p {
+                margin: 0 0 5px 0;
+            }
+            .grid-right .description {
+                margin-top: 8px;
+                text-align: justify;
+                font-size: 0.95em;
+            }
+            ul {
+                margin-top: 5px;
+                padding-left: 20px;
+            }
+            li {
+                margin-bottom: 8px;
+                font-size: 0.95em;
+            }
+            a {
+                color: #2980b9;
+                text-decoration: none;
+            }
+            a:hover {
+                text-decoration: underline;
+            }
+            .tools {
+                line-height: 1.8;
+                font-size: 0.95em;
+                background-color: #f8f9fa;
+                padding: 15px;
+                border-radius: 4px;
+                border-left: 4px solid var(--primary-color);
+            }
+            
+            /* CONFIGURAÇÕES ESPECÍFICAS PARA IMPRESSÃO EM A4 */
+            @media print {
+                @page {
+                    size: A4;
+                    margin: 15mm;
+                }
+                body {
+                    max-width: 100%;
+                    padding: 0;
+                    margin: 0;
+                    font-size: 10.5pt;
+                    color: #000;
+                }
+                header {
+                    margin-bottom: 20px;
+                    padding-bottom: 10px;
+                }
+                h1 {
+                    font-size: 1.8em;
+                }
+                h2 {
+                    margin-top: 15px;
+                    margin-bottom: 10px;
+                    font-size: 1.2em;
+                    page-break-after: avoid;
+                }
+                .grid-container {
+                    page-break-inside: avoid;
+                    margin-bottom: 12px;
+                    gap: 15px;
+                }
+                li {
+                    margin-bottom: 8px;
+                    page-break-inside: avoid;
+                }
+                .tools {
+                    page-break-inside: avoid;
+                    background-color: #f8f9fa !important;
+                    border: 1px solid #ddd;
+                    border-left: 4px solid var(--primary-color) !important;
+                    -webkit-print-color-adjust: exact;
+                    print-color-adjust: exact;
+                    padding: 10px;
+                }
+                a {
+                    color: #000;
+                    text-decoration: underline;
+                }
+            }
+            
+            @media (max-width: 600px) {
+                .grid-container, .personal-data-grid {
+                    grid-template-columns: 1fr;
+                    gap: 5px;
+                }
+                .grid-left {
+                    margin-bottom: 5px;
+                    color: var(--primary-color);
+                }
+            }
+        </style>
+    </head>
+    <body>
+
+        <header>
+            <h1>Ianco Soares Oliveira</h1>
+            <div class="personal-data-grid">
+                <div class="personal-data-label">Tel:</div>
+                <div>(84) 98169-6513</div>
+                <div class="personal-data-label">Email:</div>
+                <div>ianco.so@gmail.com</div>
+                <div class="personal-data-label">Interesses:</div>
+                <div>Desenvolvimento Web e Infraestrutura de Sistemas Web</div>
+                <div class="personal-data-label">Especialidade:</div>
+                <div>Desenvolvimento Web Full-Stack</div>
+            </div>
+        </header>
+
+        <h2>Formação acadêmica</h2>
+
+        <div class="grid-container">
+            <div class="grid-left">2026 - Atual</div>
+            <div class="grid-right">
+                <h3>Graduação em Ciência da Computação</h3>
+                <p>UFRN - CCET, Natal, Brasil.</p>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="grid-left">2021 - 2025</div>
+            <div class="grid-right">
+                <h3>Graduação em Tecnologia da Informação</h3>
+                <p>UFRN - IMD, Natal, Brasil.</p>
+            </div>
+        </div>
+
+        <!-- <div class="grid-container">
+            <div class="grid-left">2015 - 2019</div>
+            <div class="grid-right">
+                <h3>Graduação incompleta em Engenharia Elétrica</h3>
+                <p>UFRN - CCET, Natal, Brasil.</p>
+                <p><em>Ano de interrupção: 2020</em></p>
+            </div>
+        </div> -->
+
+        <div class="grid-container">
+            <div class="grid-left">2012 - 2015</div>
+            <div class="grid-right">
+                <h3>Técnico em Informática integrado ao Ensino Médio</h3>
+                <p>UFRN - EAJ, Natal, Brasil.</p>
+            </div>
+        </div>
+
+        <h2>Atuação profissional</h2>
+
+        <div class="grid-container">
+            <div class="grid-left">2024 - 2026</div>
+            <div class="grid-right">
+                <h3>1. Projeto de pesquisa FUNPEC UFRN da GERTEC</h3>
+                <p><strong>Cargo:</strong> Bolsista de desenvolvimento web (30h/semana)</p>
+                <p class="description">Desenvolver sistema web com JavaScript, Express, MySQL, e recursos diversos do AWS no Backend. No Frontend utiliza Typescript com Angular.</p>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="grid-left">2023 - 2024</div>
+            <div class="grid-right">
+                <h3>2. Secretaria de Estado da Segurança Pública e da Defesa Social - RN - SESED/RN</h3>
+                <p><strong>Cargo:</strong> Estagiário de Desenvolvimento Web (30h/semana)</p>
+                <p class="description">Desenvolver sistema web com Java, Spring, SQL Server, Active Directory e LDAP no Back-End. No Front-End utilizar Java com Spring e Thymeleaf, HTML, CSS, JavaScript e Bootstrap.</p>
+            </div>
+        </div>
+
+        <div class="grid-container">
+            <div class="grid-left">2022 - 2023</div>
+            <div class="grid-right">
+                <h3>3. PET-CC - UFRN</h3>
+                <p><strong>Cargo:</strong> Bolsista do PET-CC da UFRN (20h/semana)</p>
+                <p class="description">Fazer tutorias das matérias de Ciência da Computação, produzir cursos e materiais didáticos pertinentes para os estudantes de graduação de Computação e dar suporte ao site do PET-CC da UFRN.</p>
+            </div>
+        </div>
+
+        <h2>Produções</h2>
+
+        <h3>Sites:</h3>
+        <ul>
+            <li><strong>Suporte e desenvolvimento do sistema MDM:</strong> <a href="https://mymdm.com.br" target="_blank">https://mymdm.com.br</a></li>
+            <li><strong>Suporte e desenvolvimento do sistema NPS:</strong> <a href="https://mynps.com.br" target="_blank">https://mynps.com.br</a></li>
+            <li><strong>Suporte ao site do PET-CC:</strong> <a href="https://petcc.dimap.ufrn.br/" target="_blank">https://petcc.dimap.ufrn.br/</a></li>
+            <li><strong>Manutenção e desenvolvimento do SIPED</strong> (Sistema de Pessoas Desaparecidas da SESED-RN): O site do sistema tem um caráter restrito e ainda está em desenvolvimento.</li>
+            <li><strong>Desenvolvimento do FrotaRN</strong> (Sistema de controle de abastecimento e deslocamento de viaturas do Governo do Estado do RN): Sistema web de caráter restrito e ainda em fase de desenvolvimento.</li>
+        </ul>
+
+        <h3>Cursos:</h3>
+        <ul>
+            <li>1. Introdução ao Git, 2022. (ministrei pelo PET-CC)</li>
+            <li>2. Introdução ao Linux, 2022. (ministrei pelo PET-CC)</li>
+            <li>3. Introdução ao LaTeX, 2023. (ministrei pelo PET-CC)</li>
+            <li>4. 1ª OPEN HOUSE DO DIMAP DA UFRN, 2023. (ministrei para o DIMAP)</li>
+        </ul>
+
+        <h2>Ferramentas e Tecnologias</h2>
+        <p class="tools">
+            JavaScript, Angular, Express, AWS, Java, Spring, Banco de dados SQL (SQL Server), Hibernate, Git, HTML, CSS (com Bootstrap), Thymeleaf.
+        </p>
+
+    </body>
+</html>
